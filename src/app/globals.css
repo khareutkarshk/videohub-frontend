@@ -1,8 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
-
 
 @layer base {
   :root {
@@ -51,8 +49,28 @@
   }
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
 
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 5px;
+  margin-top: 20px;
+}
  
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #A1A1AA; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #717171; 
+}
+
 @layer base {
   * {
     @apply border-border;
