@@ -21,7 +21,7 @@ export default function SideBar() {
     return (
         <>
             
-            <Card className="w-1/5 flex flex-col justify-between  py-5 border-t-0 rounded-none sticky top-16 h-[calc(100vh-theme(spacing.16))] overflow-y-auto">
+            <Card className="w-1/5 hidden lg:flex flex-col justify-between  py-5 border-t-0 rounded-none sticky top-16 h-[calc(100vh-theme(spacing.16))] overflow-y-auto">
                 <div>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
