@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 const inter = Inter({ subsets: ["latin"] });
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { UserContextProvider } from './context/UserContext';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,13 +18,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" >
-      <body className={inter.className}>
-        <Header></Header>
-        <ToastContainer className="z-40 w-10"></ToastContainer>
-
-        {children}
-      </body>
-    </html>
+    <UserContextProvider>
+      <html lang="en" className="dark" >
+        <body className={inter.className}>
+          <Header></Header>
+          <ToastContainer></ToastContainer>
+          {children}
+        </body>
+      </html>
+    </UserContextProvider>
   );
 }

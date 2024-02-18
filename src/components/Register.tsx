@@ -8,20 +8,12 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 function RegisterForm() {
 
     const router = useRouter();
     const { register, handleSubmit, formState: { errors }, getValues } = useForm();
     const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState({
-        fullName: '',
-        email: '',
-        password: '',
-        username: '',
-        avatar: '',
-        coverImage: '',
-
-    });
 
 
     const onSubmit = async (data: any) => {
@@ -53,8 +45,6 @@ function RegisterForm() {
             });
             router.push('/login');
         } catch (error: any) {
-            // console.log('There was a problem with your Axios operation:', error.message);
-            console.log('error', typeof error.response.status);
             if (error.response.status === 409) {
                 toast.error('User with email or username already exists!', {
                     position: "top-right",
@@ -174,6 +164,10 @@ function RegisterForm() {
                             disabled={loading}                    >
                             {loading ? 'Loading...' : 'Register User'}
                         </Button>
+
+                        <p className="text-center text-white">
+                            Have an account? <Link href="/login" className="text-blue-500 hover:underline">Login Now</Link>
+                        </p>
                     </form>
                 </div>
             </Card>
