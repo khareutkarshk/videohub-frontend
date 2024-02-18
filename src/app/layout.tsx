@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 const inter = Inter({ subsets: ["latin"] });
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,6 +20,8 @@ export default function RootLayout({
     <html lang="en" className="dark" >
       <body className={inter.className}>
         <Header></Header>
+        <ToastContainer className="z-40 w-10"></ToastContainer>
+
         {children}
       </body>
     </html>

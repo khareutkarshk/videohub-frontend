@@ -12,12 +12,16 @@ const nextConfig = {
         ]
     },
     async rewrites() {
-        let base_url = process.env.BASE_URL || 'http://localhost:8000'
+        let base_url = process.env.BASE_URL || 'http://localhost:8000/api/v1/'
         return [
             {
                 source: '/videos',
-                destination: `${base_url}/api/v1/videos/`
+                destination: `${base_url}/videos/`
             },
+            {
+                source: '/user/:path*',
+                destination: `${base_url}/users/:path*`
+            }
 
         ]
     },

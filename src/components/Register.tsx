@@ -3,11 +3,16 @@ import React, { FormEvent, useState } from 'react';
 import { Boxes } from "@/components/ui/background-boxes"
 import { Label } from './ui/label';
 import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
-function MusicSchoolContactUs() {
-    const [email, setEmail] = useState('');
-    const [message, setMessage] = useState('');
+import { Card } from './ui/card';
+import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+function RegisterForm() {
 
+    const router = useRouter();
+    const { register, handleSubmit, formState: { errors }, getValues } = useForm();
+    const [loading, setLoading] = useState(false);
     const [user, setUser] = useState({
         fullName: '',
         email: '',
@@ -19,9 +24,67 @@ function MusicSchoolContactUs() {
     });
 
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        console.log('Submitted:', { email, message });
+    const onSubmit = async (data: any) => {
+
+        try {
+            setLoading(true);
+            const formData = new FormData();
+            formData.append('fullName', data.fullName);
+            formData.append('email', data.email);
+            formData.append('password', data.password);
+            formData.append('username', data.username);
+            formData.append('avatar', data.avatar[0]);
+            formData.append('coverImage', data.coverImage[0]);
+
+            const response = await axios.post('/user/register/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            toast.success('User registered successfully. Login Now', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+            router.push('/login');
+        } catch (error: any) {
+            // console.log('There was a problem with your Axios operation:', error.message);
+            console.log('error', typeof error.response.status);
+            if (error.response.status === 409) {
+                toast.error('User with email or username already exists!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                });
+            }else{
+                toast.error('Something went wrong', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                });
+            
+            }
+
+            setLoading(false);
+        } finally {
+            setLoading(false);
+        }
+
     };
 
     return (
@@ -32,82 +95,84 @@ function MusicSchoolContactUs() {
             <Boxes className="absolute -top-24 left-0 w-full h-full z-0" />
             {/* Content with higher z-index */}
             <Card className='max-w-2xl mx-auto p-4 relative z-10'>
-                <div className="max-w-2xl mx-auto p-4 relative z-10">
+                <div className=" p-4">
                     {' '}
                     {/* Add relative and z-10 to bring content to the front */}
                     <h1 className="text-lg md:text-3xl text-center font-sans font-bold mb-8 text-white">
                         Register New User
                     </h1>
-                    <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
                         <div className='flex flex-col gap-4'>
-                            <Label htmlFor="name">Full Name</Label>
+                            <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
                             <input
                                 type="text"
-                                value={user.fullName}
-                                onChange={(e) => setUser({ ...user, fullName: e.target.value })}
+                                {...register('fullName', { required: true, pattern: /^[a-zA-Z\s]+$/ })}
                                 placeholder="Your name"
                                 className="rounded-lg border border-neutral-800 focus:ring-2 focus:ring-blue-500 w-full p-4 bg-neutral-950 placeholder:text-slate-200"
-                                required
+                            // required
                             />
+                            {errors.fullName && <span className="text-red-500 text-sm">Full Name is required and should contain only letters and spaces</span>}
+
                         </div>
                         <div className='flex flex-col gap-4'>
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email" >Email <span className="text-red-500">*</span></Label>
                             <input
                                 type="email"
-                                value={user.email}
-                                onChange={(e) => setUser({ ...user, password: e.target.value })}
+                                {...register('email', { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ })}
                                 placeholder="Your email address"
                                 className="rounded-lg border border-neutral-800 focus:ring-2 focus:ring-blue-500 w-full p-4 bg-neutral-950 placeholder:text-slate-200"
-                                required
                             />
+                            {errors.email && <span className="text-sm text-red-500">Valid email is required</span>}
+
                         </div>
                         <div className='flex flex-col gap-4'>
-                            <Label htmlFor='password'>Password</Label>
+                            <Label htmlFor='password'>Password <span className="text-red-500">*</span></Label>
                             <input
                                 type='password'
-                                value={user.password}
-                                onChange={(e) => setUser({ ...user, password: e.target.value })}
+                                {...register('password', { required: true, pattern: /^(.{8,})$/ })}
+
                                 placeholder='Password'
                                 className='rounded-lg border border-neutral-800 focus:ring-2 focus:ring-blue-500 w-full p-4 bg-neutral-950 placeholder:text-slate-200'
-                                required
                             />
+                            {errors.password && <span className="text-red-500 text-sm">Password must be at least 8 characters long</span>}
+
                         </div>
                         <div className='flex flex-col gap-4'>
-                            <Label htmlFor='username'>Username</Label>
+                            <Label htmlFor='username'>Username <span className="text-red-500">*</span></Label>
                             <input
                                 type='text'
-                                value={user.username}
-                                onChange={(e) => setUser({ ...user, username: e.target.value })}
+                                {...register('username', { required: true, pattern: /^[a-zA-Z0-9_]*$/ })}
+
                                 placeholder='Username'
                                 className='rounded-lg border border-neutral-800 focus:ring-2 focus:ring-blue-500 w-full p-4 bg-neutral-950 placeholder:text-slate-200'
-                                required
                             />
+                            {errors.username && <span className="text-red-500 text-sm">Username is required and should contain only letters, numbers, or underscores</span>}
+
                         </div>
                         <div className='flex flex-col gap-4'>
-                            <Label htmlFor='avatar'>Avatar</Label>
+                            <Label htmlFor='avatar'>Avatar <span className="text-red-500">*</span></Label>
                             <input
                                 type='file'
-                                value={user.avatar}
-                                onChange={(e) => setUser({ ...user, avatar: e.target.value })}
+                                {...register('avatar', { required: true })}
                                 placeholder='Avatar'
                                 className='rounded-lg border border-neutral-800 focus:ring-2 focus:ring-blue-500 w-full p-4 bg-neutral-950 placeholder:text-slate-200'
-                                required
                             />
+                            {errors.avatar && <span className="text-red-500 text-sm">Avatar is required</span>}
+
                         </div>
                         <div className='flex flex-col gap-4'>
                             <Label htmlFor='coverImage'>Cover Image</Label>
                             <input
                                 type='file'
-                                value={user.coverImage}
-                                onChange={(e) => setUser({ ...user, coverImage: e.target.value })}
+                                {...register('coverImage')}
                                 placeholder='Cover Image'
                                 className='rounded-lg border border-neutral-800 focus:ring-2 focus:ring-blue-500 w-full p-4 bg-neutral-950 placeholder:text-slate-200'
-                                required
                             />
                         </div>
                         <Button
-                            type="submit"                    >
-                            Send Message
+                            type="submit"
+                            disabled={loading}                    >
+                            {loading ? 'Loading...' : 'Register User'}
                         </Button>
                     </form>
                 </div>
@@ -117,4 +182,4 @@ function MusicSchoolContactUs() {
     );
 }
 
-export default MusicSchoolContactUs;
+export default RegisterForm;
