@@ -8,7 +8,7 @@ export default function VideoList() {
 
     useEffect(() => {
        ;(async () =>{
-        const data = await axios.get("/videos/")
+        const data = await axios.get("/videos/getAllVideos")
         let res = data.data.data
         setVideoList(data.data.data)
         console.log(res[0].title);

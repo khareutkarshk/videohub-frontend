@@ -16,42 +16,49 @@ import { HomeIcon,
     CameraIcon,
     QuestionMarkCircledIcon,
 GearIcon } from "@radix-ui/react-icons";
-
-export default function SideBar() {
+import { useRouter } from "next/navigation";
+export default function SideBar(props: any) {
+    const router = useRouter();
     return (
         <>
             
-            <Card className="w-1/5 hidden lg:flex flex-col justify-between  py-5 border-t-0 rounded-none sticky top-16 h-[calc(100vh-theme(spacing.16))] overflow-y-auto">
+            <Card className={`${props.page === "watch" ? 'w-full' : 'w-1/5'} hidden lg:flex flex-col justify-between  py-5 border-t-0 rounded-none sticky top-16 h-[calc(100vh-theme(spacing.16))] overflow-y-auto`}>
                 <div>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <HomeIcon></HomeIcon>
-                            Home</Button>
+                            {props.page === "watch" ? "" : "Home"}
+                            </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <StarFilledIcon></StarFilledIcon>
-                            Liked Videos</Button>
+                            {props.page === "watch" ? "" : "Liked Videos"}
+                            </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <CounterClockwiseClockIcon></CounterClockwiseClockIcon>
-                            History</Button>
+                            {props.page === "watch" ? "" : "History"}
+                            </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <CameraIcon></CameraIcon>
-                            My content</Button>
+                            {props.page === "watch" ? "" : "My Content"}
+                            </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <LayersIcon></LayersIcon>
-                            Collection</Button>
+                            {props.page === "watch" ? "" : "Collections"}
+                            </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <PersonIcon></PersonIcon>
-                            Subscribers</Button>
+                            {props.page === "watch" ? "" : "Subscribers"}
+                            </Button>
                     </CardContent>
 
 
@@ -60,12 +67,14 @@ export default function SideBar() {
                 <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <QuestionMarkCircledIcon></QuestionMarkCircledIcon>
-                            Support</Button>
+                            {props.page === "watch" ? "" : "Help"}
+                            </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
                             <GearIcon></GearIcon>
-                            Settings</Button>
+                            {props.page === "watch" ? "" : "Settings"}
+                            </Button>
                     </CardContent>
                 </div>
             </Card>

@@ -4,10 +4,16 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Card, CardHeader, CardContent, CardDescription } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DotFilledIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
 export default function VideoInfo(videoInfo: any) {
+  const router = useRouter();
+
+  const handleVideoClick = () => {
+    router.push(`/watch/${videoInfo.video._id}`);
+  }
   return (
     <>
-      <Card className="w-80">
+      <Card onClick={handleVideoClick} className="w-80 cursor-pointer hover:bg-accent ease-in transition">
         <div className="">
           <AspectRatio ratio={16 / 9}>
             <Image className="rounded" src={videoInfo.video.thumbnail} alt="thumbnail" layout="fill" />

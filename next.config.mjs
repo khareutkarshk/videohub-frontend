@@ -15,12 +15,16 @@ const nextConfig = {
         let base_url = process.env.BASE_URL || 'http://localhost:8000/api/v1/'
         return [
             {
-                source: '/videos',
-                destination: `${base_url}/videos/`
+                source: '/videos/:path*',
+                destination: `${base_url}/videos/:path*`
             },
             {
                 source: '/user/:path*',
                 destination: `${base_url}/users/:path*`
+            },
+            {
+                source: '/subscriptions/:path*',
+                destination: `${base_url}/subscriptions/:path*`
             }
 
         ]
