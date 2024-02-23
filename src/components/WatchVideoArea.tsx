@@ -5,22 +5,29 @@ import { useRouter, usePathname } from 'next/navigation';
 import Video from "next-video";
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { ThickArrowUpIcon, ThickArrowDownIcon, LayersIcon, DotFilledIcon, PersonIcon } from '@radix-ui/react-icons';
+import { ThickArrowUpIcon,
+    ThickArrowDownIcon,
+    LayersIcon,
+    DotFilledIcon,
+    PersonIcon,
+    DotsVerticalIcon } from '@radix-ui/react-icons';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Separator } from './ui/separator';
 import Comment from './Comment';
+
+
 function WatchVideoArea(props: any) {
     const pathName = usePathname();
     const [video, setVideo] = useState<any>({});
     const [initials, setInitials] = useState<any>("");
     const [subscribers, setSubscribers] = useState<any>([]);
+
     useEffect(() => {
         ; (async () => {
 
             try {
                 const parts = pathName.split('/watch/');
                 const id = parts[1];
-                console.log(id);
                 const data = await axios.get(`/videos/${id}`)
                 setVideo(data.data.data[0])
             } catch (error) {

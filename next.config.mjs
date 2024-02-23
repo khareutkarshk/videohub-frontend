@@ -25,6 +25,10 @@ const nextConfig = {
             {
                 source: '/subscriptions/:path*',
                 destination: `${base_url}/subscriptions/:path*`
+            },
+            {
+                source: '/comments/:path*',
+                destination: `${base_url}/comments/:path*`
             }
 
         ]
