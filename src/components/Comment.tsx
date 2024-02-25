@@ -12,28 +12,74 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { timeAgo } from '@/utils/timeAgo';
+import { useUserContext } from '@/app/context/UserContext';
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
     DropdownMenuGroup,
     DropdownMenuItem
 } from "@/components/ui/dropdown-menu"
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 function Comment(props: any) {
     const router = useRouter();
     const pathName = usePathname();
     const [comments, setComments] = useState<any[]>([]);
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const [loading, setLoading] = useState(false);
-    const [position, setPosition] = useState("bottom")
+
 
     useEffect(() => {
         fetchComments();
     }, [])
+
+    const toggleEditComment = (comment: any) => {
+        setComments((prev) =>
+            prev.map((prevComment) =>
+                prevComment._id === comment._id ? {
+                    ...prevComment,
+                    showReplyTo: !prevComment.showReplyTo
+                } : prevComment)
+        )
+    }
+
+    const deleteComment = async (id: any) => {
+        try {
+            const response = await axios.delete(`/comments/c/${id}`);
+            fetchComments();
+            toast.success('Comment Deleted Successfully', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        } catch (error) {
+            console.log(error);
+            toast.error('Something went wrong while deleting comment', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        }
+    }
 
     const fetchComments = async () => {
         const parts = pathName.split('/watch/');
@@ -95,79 +141,147 @@ function Comment(props: any) {
                 </form>
                 {errors.content && <span className="text-red-500 text-sm mt-1">Comment can't be empty.</span>}
                 {comments.length && [...comments].reverse().map((comment: any, index: any) => (
-                    <div key={comment._id}>
-                        <Separator></Separator>
-                        {/* Comment Thread */}
-                        <div className='flex justify-between mt-4'>
-                            <div className='flex'>
-                                <Avatar>
-                                    <AvatarImage src={comment.owner?.avatar} />
-                                    <AvatarFallback>CN</AvatarFallback>
-                                </Avatar>
-                                <div className='grid text-start ml-3'>
-                                    <div className='flex gap-2 flex-row'>
-                                        <p className='text-xs'>{comment.owner?.fullName}</p>
-                                        {/* posted time */}
-                                        <div className='flex gap-2 text-xs text-muted-foreground items-center'>
-                                            <span>{timeAgo(comment?.updatedAt)}</span>
-                                            <RocketIcon></RocketIcon>
-                                        </div>
-                                    </div>
-                                    <p className='text-muted-foreground text-xs'>@{comment.owner?.username}</p>
-                                </div>
-                            </div>
-                            <div>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost"><DotsVerticalIcon></DotsVerticalIcon></Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-45">
-                                        <DropdownMenuGroup>
-                                            <DropdownMenuItem className='gap-2'><Pencil1Icon></Pencil1Icon> Edit</DropdownMenuItem>
-                                            <DropdownMenuItem className='gap-2'><TrashIcon></TrashIcon> Delete</DropdownMenuItem>
-                                        </DropdownMenuGroup>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
-
-                        </div>
-                        <div className='mt-2 ml-12'>                            
-                            <p>{comment?.content}</p>
-                        </div>
-
-                    </div>
+                    <CommentNode
+                        key={comment._id}
+                        comment={comment}
+                        toggleEditComment={toggleEditComment}
+                        handleSubmit={handleSubmit}
+                        register={register}
+                        onSubmit={onSubmit}
+                        fetchComments={fetchComments}
+                        deleteComment={deleteComment} />
                 ))}
 
-
-                <div>
-                    <Separator></Separator>
-                    {/* Comment Thread */}
-                    <div className='flex mt-4'>
-                        <Avatar>
-                            <AvatarImage src={props.data?.ownerDetails?.avatar} />
-                            <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
-                        <div className='grid text-start ml-3'>
-                            <div className='flex gap-2 flex-row'>
-                                <p>{props.data?.ownerDetails?.fullName}</p>
-                                {/* posted time */}
-                                <div className='flex gap-2 text-xs text-muted-foreground items-center'>
-                                    <span>2 hours ago</span>
-                                    <RocketIcon></RocketIcon>
-                                </div>
-                            </div>
-                            <p className='text-muted-foreground text-xs'>@{props.data?.ownerDetails?.username}</p>
-                        </div>
-
-                    </div>
-                    <div className='mt-4 ml-12'>
-                        <p>Comment body</p>
-                    </div>
-
-                </div>
             </Card>
         </>
     )
 }
+
+const CommentNode = ({ comment, toggleEditComment, fetchComments, deleteComment }: any) => {
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { userDetails } = useUserContext();
+
+    const onSubmit = async (data: any) => {
+        try {
+            const response = await axios.patch(`/comments/c/${comment._id}`, data);
+            fetchComments();
+            reset();
+            toast.success('You Replied To a Comment!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        } catch (error) {
+            console.log('Error:', error);
+            toast.error('Something went wrong while replying comment', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        }
+    };
+
+    return (
+        <>
+            <div key={comment._id}>
+                <Separator></Separator>
+
+                <div className='flex justify-between mt-4'>
+                    <div className='flex'>
+                        <Avatar>
+                            <AvatarImage src={comment.owner?.avatar} />
+                            <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                        <div className='grid text-start ml-3'>
+                            <div className='flex gap-2 flex-row'>
+                                <p className='text-xs'>{comment.owner?.fullName}</p>
+                                {/* posted time */}
+                                <div className='flex gap-2 text-xs text-muted-foreground items-center'>
+                                    <span>{timeAgo(comment?.updatedAt)}</span>
+                                    <RocketIcon></RocketIcon>
+                                </div>
+                            </div>
+                            <p className='text-muted-foreground text-xs'>@{comment.owner?.username}</p>
+                        </div>
+                    </div>
+                    <div>
+                        {
+                            comment.owner?._id === userDetails?._id ? (
+                                <Dialog>
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost"><DotsVerticalIcon></DotsVerticalIcon></Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="w-45">
+                                            <DropdownMenuGroup>
+                                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toggleEditComment(comment) }} className='gap-2'><Pencil1Icon></Pencil1Icon> Edit</DropdownMenuItem>
+
+                                                <DialogTrigger asChild>
+                                                    <DropdownMenuItem className='gap-2'>
+                                                        <TrashIcon></TrashIcon> Delete
+                                                    </DropdownMenuItem>
+                                                </DialogTrigger>
+                                            </DropdownMenuGroup>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Delete Comment?</DialogTitle>
+                                            <DialogDescription>
+                                                This action cannot be undone!
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant={"secondary"} >Cancel</Button>
+                                            </DialogClose>
+                                            <Button onClick={() => deleteComment(comment._id)} variant={"destructive"}>Delete</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+
+                            ) : null
+                        }
+
+                    </div>
+
+
+
+                </div>
+                <div className='mt-2 ml-12'>
+                    <p>{comment?.content}</p>
+                    {comment.showReplyTo && (
+                        <form onSubmit={handleSubmit(onSubmit)} className='flex mt-3 w-full items-center space-x-2'>
+                            <Input {...register('content', { required: true })} type="text" placeholder="Add a Comment" />
+                            <Button className='gap-1' type="submit">
+                                <RocketIcon></RocketIcon>
+                                <span>Reply</span>
+                            </Button>
+                        </form>
+                    )}
+                    {
+                        comment.replies?.length ? comment.replies.map((reply: any) => (
+                            <div className='mb-3'>
+                                <CommentNode key={reply._id} comment={reply} toggleEditComment={toggleEditComment} handleSubmit={handleSubmit} register={register} onSubmit={onSubmit}></CommentNode>
+                            </div>
+                        )) : null
+                    }
+                </div>
+            </div>
+        </>
+    );
+};
 
 export default Comment

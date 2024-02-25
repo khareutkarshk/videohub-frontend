@@ -44,9 +44,12 @@ export const UserContextProvider = ({ children }: {children: ReactNode}) =>{
     }
 
     async function getRefreshTokenfromServer(){
-        if(refreshToken()){
+        const refreshToken = localStorage.getItem('refresh');
+        console.log('refreshToken', refreshToken);
+        
+        if(refreshToken){
             try{
-                let response = await axios.post('/user/refresh-token/', {refreshToken: refreshToken()});
+                let response = await axios.post('/user/refresh-token/', {refreshToken: refreshToken});
             }catch(error){
                 console.log(error);
             }
