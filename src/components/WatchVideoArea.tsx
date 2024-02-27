@@ -14,8 +14,6 @@ import { ThickArrowUpIcon,
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Separator } from './ui/separator';
 import Comment from './Comment';
-
-
 function WatchVideoArea(props: any) {
     const pathName = usePathname();
     const [video, setVideo] = useState<any>({});

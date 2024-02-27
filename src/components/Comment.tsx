@@ -3,7 +3,7 @@ import React from 'react'
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { RocketIcon, PaperPlaneIcon, DotsVerticalIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
+import { RocketIcon, PaperPlaneIcon, DotsVerticalIcon, Pencil1Icon, TrashIcon, ThickArrowDownIcon, ThickArrowUpIcon, ResetIcon } from '@radix-ui/react-icons';
 import { Separator } from './ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useEffect, useState } from 'react';
@@ -31,25 +31,55 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 function Comment(props: any) {
-    const router = useRouter();
     const pathName = usePathname();
     const [comments, setComments] = useState<any[]>([]);
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const [loading, setLoading] = useState(false);
 
-
     useEffect(() => {
         fetchComments();
     }, [])
 
-    const toggleEditComment = (comment: any) => {
+    const toggleEditComment = (cmt: any) => {
+
+        if (cmt.replies) {
+            setComments((prev) =>
+                prev.map((prevComment) =>
+                    prevComment._id === cmt._id ? {
+                        ...prevComment,
+                        showEdit: !prevComment.showEdit
+                    } : prevComment)
+            )
+        } else {
+            setComments(prevComments =>
+                prevComments.map(comment =>
+                    comment._id === cmt.parent
+                        ? {
+                            ...comment,
+                            replies: comment.replies.map((reply: { _id: any; showEdit: any; }) =>
+                                reply._id === cmt._id
+                                    ? { ...reply, showEdit: !reply.showEdit }
+                                    : reply
+                            )
+                        }
+                        : comment
+                )
+            );
+
+        }
+
+    }
+
+    const toggleReplyComment = (comment: any) => {
         setComments((prev) =>
             prev.map((prevComment) =>
                 prevComment._id === comment._id ? {
                     ...prevComment,
                     showReplyTo: !prevComment.showReplyTo
                 } : prevComment)
+
         )
+        console.log('prevComment', comment)
     }
 
     const deleteComment = async (id: any) => {
@@ -88,7 +118,7 @@ function Comment(props: any) {
         setComments(response.data.data);
     }
 
-    const onSubmit = async (data: any) => {
+    const onSubmitComment = async (data: any) => {
         try {
             setLoading(true);
             const parts = pathName.split('/watch/');
@@ -132,7 +162,7 @@ function Comment(props: any) {
                     <span>{comments?.length}</span>
                     <h3>Comments</h3>
                 </div>
-                <form onSubmit={handleSubmit(onSubmit)} className='flex w-full items-center space-x-2'>
+                <form onSubmit={handleSubmit(onSubmitComment)} className='flex w-full items-center space-x-2'>
                     <Input {...register('content', { required: true })} type="text" placeholder="Add a Comment" />
                     <Button className='gap-1' type="submit">
                         <RocketIcon></RocketIcon>
@@ -147,9 +177,11 @@ function Comment(props: any) {
                         toggleEditComment={toggleEditComment}
                         handleSubmit={handleSubmit}
                         register={register}
-                        onSubmit={onSubmit}
+                        onSubmit={onSubmitComment}
                         fetchComments={fetchComments}
-                        deleteComment={deleteComment} />
+                        deleteComment={deleteComment}
+                        toggleReplyComment={toggleReplyComment}
+                         />
                 ))}
 
             </Card>
@@ -157,13 +189,44 @@ function Comment(props: any) {
     )
 }
 
-const CommentNode = ({ comment, toggleEditComment, fetchComments, deleteComment }: any) => {
+const CommentNode = ({ comment, toggleEditComment, toggleReplyComment, fetchComments, deleteComment }: any) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const { userDetails } = useUserContext();
 
-    const onSubmit = async (data: any) => {
+    const onSubmitEdit = async (data: any) => {
         try {
             const response = await axios.patch(`/comments/c/${comment._id}`, data);
+            
+            fetchComments();
+            reset();
+            toast.success('You Replied To a Comment!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        } catch (error) {
+            console.log('Error:', error);
+            toast.error('Something went wrong while editing comment', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        }
+    };
+
+    const onSubmitReply = async (data: any, commentId: any) => {
+        try {
+            const response = await axios.post(`/comments/c/${commentId}`, data);
             fetchComments();
             reset();
             toast.success('You Replied To a Comment!', {
@@ -225,7 +288,7 @@ const CommentNode = ({ comment, toggleEditComment, fetchComments, deleteComment 
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent className="w-45">
                                             <DropdownMenuGroup>
-                                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toggleEditComment(comment) }} className='gap-2'><Pencil1Icon></Pencil1Icon> Edit</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => toggleEditComment(comment)} className='gap-2'><Pencil1Icon></Pencil1Icon> Edit</DropdownMenuItem>
 
                                                 <DialogTrigger asChild>
                                                     <DropdownMenuItem className='gap-2'>
@@ -262,19 +325,71 @@ const CommentNode = ({ comment, toggleEditComment, fetchComments, deleteComment 
                 </div>
                 <div className='mt-2 ml-12'>
                     <p>{comment?.content}</p>
-                    {comment.showReplyTo && (
-                        <form onSubmit={handleSubmit(onSubmit)} className='flex mt-3 w-full items-center space-x-2'>
-                            <Input {...register('content', { required: true })} type="text" placeholder="Add a Comment" />
-                            <Button className='gap-1' type="submit">
-                                <RocketIcon></RocketIcon>
-                                <span>Reply</span>
-                            </Button>
+                    {comment.showEdit && (
+                        <form onSubmit={handleSubmit(onSubmitEdit)}>
+                            <div className='flex mt-3 w-full items-center space-x-2'>
+                                <Input {...register('content', { required: true })} type="text" placeholder="Edit Your Comment" />
+                                <Button onClick={() => toggleEditComment(comment)} variant={"secondary"} >Cancel</Button>
+                                <Button className='gap-1' type="submit">
+                                    <Pencil1Icon></Pencil1Icon>
+                                    <span>Edit</span>
+                                </Button>
+                            </div>
+                            {errors.content && <span className="text-red-500 text-sm mt-1">Comment can't be empty.</span>}
                         </form>
+
                     )}
+
+
+                    {comment.showReplyTo && (
+                        <form onSubmit={handleSubmit(data => onSubmitReply(data, comment._id))}>
+                            <div className='flex mt-3 w-full items-center space-x-2'>
+                                <Input {...register('content', { required: true })} type="text" placeholder="Reply..." />
+                                <Button onClick={() => toggleReplyComment(comment)} variant={"secondary"} >Cancel</Button>
+                                <Button className='gap-1' type="submit">
+                                    <ResetIcon></ResetIcon>
+                                    <span>Reply</span>
+                                </Button>
+                            </div>
+                            {errors.content && <span className="text-red-500 text-sm mt-1">Comment can't be empty.</span>}
+                        </form>
+
+                    )}
+
+                    <div className='flex gap-4'>
+                        <Button size={"sm"} className='hover:bg-transparent px-0 gap-1 w-fit hover:text-primary' variant={'ghost'} onClick={() => toggleReplyComment(comment)}>
+                            <ThickArrowUpIcon></ThickArrowUpIcon>
+                            <div className='text-sm'>3</div>
+                        </Button>
+                        <Button size={"sm"} className='hover:bg-transparent gap-1 px-0 hover:text-primary' variant={'ghost'} onClick={() => toggleReplyComment(comment)}>
+                            <ThickArrowDownIcon></ThickArrowDownIcon>
+                            <div className='text-sm'>0</div>
+                        </Button>
+                        {
+                            comment.replies ? (
+                                <Button onClick={() => toggleReplyComment(comment)} size={"icon"} className='px-4 text-primary hover:text-primary' variant={'ghost'}>
+                                    <span>Reply</span>
+                                </Button>
+                            ) : null
+                        }
+
+                    </div>
+
+
+
                     {
-                        comment.replies?.length ? comment.replies.map((reply: any) => (
+                        comment.replies?.length ? comment.replies.map((reply: any, index: any) => (
                             <div className='mb-3'>
-                                <CommentNode key={reply._id} comment={reply} toggleEditComment={toggleEditComment} handleSubmit={handleSubmit} register={register} onSubmit={onSubmit}></CommentNode>
+                                <CommentNode
+                                    key={index}
+                                    comment={reply}
+                                    toggleEditComment={toggleEditComment}
+                                    toggleReplyComment={toggleReplyComment}
+                                    handleSubmit={handleSubmit}
+                                    register={register}
+                                    onSubmitEdit={onSubmitEdit}
+                                    fetchComments={fetchComments}
+                                />
                             </div>
                         )) : null
                     }
