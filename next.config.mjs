@@ -29,6 +29,14 @@ const nextConfig = {
             {
                 source: '/comments/:path*',
                 destination: `${base_url}/comments/:path*`
+            },
+            {
+                source: '/likes/:path*',
+                destination: `${base_url}/likes/:path*`
+            },
+            {
+                source: '/dislikes/:path*',
+                destination: `${base_url}/dislikes/:path*`
             }
 
         ]

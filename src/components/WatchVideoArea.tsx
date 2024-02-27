@@ -21,21 +21,21 @@ function WatchVideoArea(props: any) {
     const [subscribers, setSubscribers] = useState<any>([]);
 
     useEffect(() => {
-        ; (async () => {
-
-            try {
-                const parts = pathName.split('/watch/');
-                const id = parts[1];
-                const data = await axios.get(`/videos/${id}`)
-                setVideo(data.data.data[0])
-            } catch (error) {
-                console.log(error);
-
-            }
-        }
-        )()
+        fetchVideoDetails();
 
     }, [])
+
+    const fetchVideoDetails = async () => {
+        try {
+            const parts = pathName.split('/watch/');
+            const id = parts[1];
+            const data = await axios.get(`/videos/${id}`)
+            setVideo(data.data.data[0])
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
 
     const extractInitials = () => {
         if (video?.ownerDetails?.fullName) {
@@ -43,6 +43,24 @@ function WatchVideoArea(props: any) {
             const firstInitial = firstName.charAt(0);
             const lastInitial = lastName.charAt(0);
             setInitials(firstInitial + lastInitial);
+        }
+    }
+
+    const toggleLikeButton = async (id: string) => {
+        try {
+            const data = await axios.post(`/likes/toggle/v/${id}/`)
+            fetchVideoDetails();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const toggleDislikeButton = async (id: string) => {
+        try {
+            const data = await axios.post(`/dislikes/toggle/v/${id}/`)
+            fetchVideoDetails();
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -65,13 +83,13 @@ function WatchVideoArea(props: any) {
                         </div>
                         <div className=' gap-3 flex'>
                             <div className=' flex border-2 rounded-lg px-1 items-center'>
-                                <Button className='border-0' variant={'outline'}>
-                                    <ThickArrowUpIcon></ThickArrowUpIcon>
-                                    <span>12</span>
+                                <Button onClick={() => toggleLikeButton(video?._id)} className='border-0' variant={'outline'}>
+                                    <ThickArrowUpIcon className='size-5'></ThickArrowUpIcon>
+                                    <span>{video?.likesCount}</span>
                                 </Button>
-                                <Button className='border-0' variant={'outline'}>
-                                    <ThickArrowDownIcon></ThickArrowDownIcon>
-                                    <span>12</span>
+                                <Button onClick={() => toggleDislikeButton(video?._id)} className='border-0' variant={'outline'}>
+                                    <ThickArrowDownIcon className='size-5'></ThickArrowDownIcon>
+                                    <span>{video?.dislikesCount}</span>
                                 </Button>
 
                             </div>

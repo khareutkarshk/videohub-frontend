@@ -32,7 +32,13 @@ export default function Component() {
         if (userDetails.fullName) {
             const [firstName, lastName] = userDetails.fullName.split(' ');
             const firstInitial = firstName.charAt(0);
-            const lastInitial = lastName.charAt(0);
+            let lastInitial = ''; // Initialize lastInitial
+    
+            // Check if lastName exists before getting its initial
+            if (lastName) {
+                lastInitial = lastName.charAt(0);
+            }
+            
             setInitials(firstInitial + lastInitial);
         }
     }

@@ -254,6 +254,24 @@ const CommentNode = ({ comment, toggleEditComment, toggleReplyComment, fetchComm
         }
     };
 
+    const toggleLikeButton = async (id: string) => {
+        try {
+            const data = await axios.post(`/likes/toggle/c/${id}/`)
+            fetchComments();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const toggleDislikeButton = async (id: string) => {
+        try {
+            const data = await axios.post(`/dislikes/toggle/c/${id}/`)
+            fetchComments();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <>
             <div key={comment._id}>
@@ -357,13 +375,13 @@ const CommentNode = ({ comment, toggleEditComment, toggleReplyComment, fetchComm
                     )}
 
                     <div className='flex gap-4'>
-                        <Button size={"sm"} className='hover:bg-transparent px-0 gap-1 w-fit hover:text-primary' variant={'ghost'} onClick={() => toggleReplyComment(comment)}>
-                            <ThickArrowUpIcon></ThickArrowUpIcon>
-                            <div className='text-sm'>3</div>
+                        <Button size={"sm"} className='hover:bg-transparent px-0 gap-1 w-fit hover:text-primary' variant={'ghost'} onClick={() => toggleLikeButton(comment?._id)}>
+                            <ThickArrowUpIcon className='size-5'></ThickArrowUpIcon>
+                            <div className='text-sm'>{comment?.likesCount}</div>
                         </Button>
-                        <Button size={"sm"} className='hover:bg-transparent gap-1 px-0 hover:text-primary' variant={'ghost'} onClick={() => toggleReplyComment(comment)}>
-                            <ThickArrowDownIcon></ThickArrowDownIcon>
-                            <div className='text-sm'>0</div>
+                        <Button size={"sm"} className='hover:bg-transparent gap-1 px-0 hover:text-primary' variant={'ghost'} onClick={() => toggleDislikeButton(comment?._id)}>
+                            <ThickArrowDownIcon className='size-5'></ThickArrowDownIcon>
+                            <div className='text-sm'>{comment?.dislikesCount}</div>
                         </Button>
                         {
                             comment.replies ? (
