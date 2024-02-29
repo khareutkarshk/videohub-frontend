@@ -30,6 +30,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { LiaTelegramPlane } from "react-icons/lia";
+import { LuClock4, LuThumbsDown, LuThumbsUp } from "react-icons/lu";
+
 function Comment(props: any) {
     const pathName = usePathname();
     const [comments, setComments] = useState<any[]>([]);
@@ -165,7 +168,7 @@ function Comment(props: any) {
                 <form onSubmit={handleSubmit(onSubmitComment)} className='flex w-full items-center space-x-2'>
                     <Input {...register('content', { required: true })} type="text" placeholder="Add a Comment" />
                     <Button className='gap-1' type="submit">
-                        <RocketIcon></RocketIcon>
+                        <LiaTelegramPlane className='size-4'></LiaTelegramPlane>
                         <span>Post</span>
                     </Button>
                 </form>
@@ -289,7 +292,7 @@ const CommentNode = ({ comment, toggleEditComment, toggleReplyComment, fetchComm
                                 {/* posted time */}
                                 <div className='flex gap-2 text-xs text-muted-foreground items-center'>
                                     <span>{timeAgo(comment?.updatedAt)}</span>
-                                    <RocketIcon></RocketIcon>
+                                    <LuClock4></LuClock4>
                                 </div>
                             </div>
                             <p className='text-muted-foreground text-xs'>@{comment.owner?.username}</p>
@@ -376,11 +379,11 @@ const CommentNode = ({ comment, toggleEditComment, toggleReplyComment, fetchComm
 
                     <div className='flex gap-4'>
                         <Button size={"sm"} className='hover:bg-transparent px-0 gap-1 w-fit hover:text-primary' variant={'ghost'} onClick={() => toggleLikeButton(comment?._id)}>
-                            <ThickArrowUpIcon className='size-5'></ThickArrowUpIcon>
+                            <LuThumbsUp className='size-4'></LuThumbsUp>
                             <div className='text-sm'>{comment?.likesCount}</div>
                         </Button>
                         <Button size={"sm"} className='hover:bg-transparent gap-1 px-0 hover:text-primary' variant={'ghost'} onClick={() => toggleDislikeButton(comment?._id)}>
-                            <ThickArrowDownIcon className='size-5'></ThickArrowDownIcon>
+                            <LuThumbsDown className='size-4'></LuThumbsDown>
                             <div className='text-sm'>{comment?.dislikesCount}</div>
                         </Button>
                         {

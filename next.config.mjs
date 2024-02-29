@@ -37,6 +37,14 @@ const nextConfig = {
             {
                 source: '/dislikes/:path*',
                 destination: `${base_url}/dislikes/:path*`
+            },
+            {
+                source: '/subscriptions/:path*',
+                destination: `${base_url}/subscriptions/:path*`
+            },
+            {
+                source: '/playlist/:path*',
+                destination: `${base_url}/playlist/:path*`
             }
 
         ]

@@ -17,6 +17,12 @@ import { HomeIcon,
     QuestionMarkCircledIcon,
 GearIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
+import { RiHome3Line } from "react-icons/ri";
+import { LuThumbsUp, LuUserCheck } from "react-icons/lu";
+import { GrHistory } from "react-icons/gr";
+import { BsCameraVideo } from "react-icons/bs";
+import { FiFolder } from "react-icons/fi";
+
 export default function SideBar(props: any) {
     const router = useRouter();
     return (
@@ -26,37 +32,37 @@ export default function SideBar(props: any) {
                 <div>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
-                            <HomeIcon></HomeIcon>
+                            <RiHome3Line className="size-4"></RiHome3Line>
                             {props.page === "watch" ? "" : "Home"}
                             </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
-                            <StarFilledIcon></StarFilledIcon>
+                            <LuThumbsUp className="size-4"></LuThumbsUp>
                             {props.page === "watch" ? "" : "Liked Videos"}
                             </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
-                            <CounterClockwiseClockIcon></CounterClockwiseClockIcon>
+                            <GrHistory></GrHistory>
                             {props.page === "watch" ? "" : "History"}
                             </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
-                            <CameraIcon></CameraIcon>
+                            <BsCameraVideo className="size-4"></BsCameraVideo>
                             {props.page === "watch" ? "" : "My Content"}
                             </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
-                            <LayersIcon></LayersIcon>
+                            <FiFolder className="size-4"></FiFolder>
                             {props.page === "watch" ? "" : "Collections"}
                             </Button>
                     </CardContent>
                     <CardContent className="p-3 pt-0">
                         <Button className="w-full gap-2" variant={"outline"}>
-                            <PersonIcon></PersonIcon>
+                            <LuUserCheck className="size-4"></LuUserCheck>
                             {props.page === "watch" ? "" : "Subscribers"}
                             </Button>
                     </CardContent>
