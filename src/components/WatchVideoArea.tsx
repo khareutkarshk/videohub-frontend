@@ -17,7 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Separator } from './ui/separator';
 import Comment from './Comment';
 import { useUserContext } from '@/app/context/UserContext';
-import { LuUserCheck, LuThumbsDown, LuThumbsUp  } from "react-icons/lu";
+import { LuUserCheck, LuThumbsDown, LuThumbsUp } from "react-icons/lu";
 import { FiFolderPlus } from "react-icons/fi";
 
 import {
@@ -32,6 +32,19 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { useForm, Controller } from 'react-hook-form';
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { FaRegCommentDots } from "react-icons/fa6";
+
 function WatchVideoArea(props: any) {
     const { userDetails, userSubscribedChannels } = useUserContext();
     const pathName = usePathname();
@@ -103,7 +116,6 @@ function WatchVideoArea(props: any) {
         try {
             const data = await axios.post(`/subscriptions/u/${id}`)
             setIsSubscribed(!isSubscribed);
-            fetchVideoDetails();
         } catch (error) {
             console.log(error);
         }
@@ -169,97 +181,26 @@ function WatchVideoArea(props: any) {
 
     return (
         <>
-            <div className=''>
+            <div>
                 <Video src={video?.videoFile} accentColor='#3B82F6' />
             </div>
             <Card className='mt-4 p-3'>
-                <CardContent>
-                    <div className='flex items-center justify-between'>
+                <CardContent className='md:p-5 p-0'>
+                    <div className='flex flex-col justify-between'>
                         <div className=''>
                             <p className='text-lg'>{video?.title}</p>
                         </div>
-                        <div className=' gap-3 flex'>
-                            <div className=' flex border-2 rounded-lg px-1 items-center'>
-                                <Button onClick={() => toggleLikeButton(video?._id)} className='border-0 gap-1' variant={'outline'}>
-                                    <LuThumbsUp className='size-4'></LuThumbsUp>
-                                    <span>{video?.likesCount}</span>
-                                </Button>
-                                <Button onClick={() => toggleDislikeButton(video?._id)} className='border-0 gap-1' variant={'outline'}>
-                                    <LuThumbsDown className='size-4'></LuThumbsDown>
-                                    <span>{video?.dislikesCount}</span>
-                                </Button>
-
+                        <div className='gap-3  justify-between flex'>
+                            {/* views and time count */}
+                            <div className='flex text-center text-muted-foreground text-sm mt-1'>
+                                <p>{video?.views} views</p>
+                                <DotFilledIcon></DotFilledIcon>
+                                <p>Published on {new Date(video?.createdAt).toDateString()}</p>
                             </div>
 
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button onClick={() => saveClickHandler()} className='gap-1' variant={'secondary'}>
-                                        <FiFolderPlus></FiFolderPlus>
-                                        <span>Save</span>
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle className='text-center'>Save To Playlist</DialogTitle>
-                                        <DialogDescription>
-
-
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className='w-full grid place-content-center'>
-
-                                        <div className='w-fit items-start flex flex-col gap-3 text-start justify-start'>
-                                            {
-                                                userPlaylists.length > 0 && userPlaylists.map((playlist: any) => (
-                                                    <form key={playlist._id} onChange={(e) => checkboxChangeHandler(e, playlist._id)}>
-                                                        <div className="flex text-center justify-center  items-center space-x-2">
-                                                            <Controller
-                                                                control={control}
-                                                                name={playlist._id}
-                                                                defaultValue={playlist.videos?.includes(video._id)}
-                                                                render={({ field }) => (
-                                                                    <Checkbox
-                                                                        id={playlist._id}
-                                                                        defaultChecked={field.value}
-                                                                        onChange={e => {
-                                                                            field.onChange((e.target as HTMLInputElement).checked);
-                                                                        }}
-                                                                    />
-                                                                )}
-                                                            />
-                                                            {/* <Checkbox id={playlist._id} checked={playlist.videos?.includes(video._id)}/> */}
-                                                            <Label className='text-white' htmlFor={playlist._id}>{playlist?.name}</Label>
-                                                        </div>
-                                                    </form>
-                                                ))
-                                            }
-                                        </div>
-                                    </div>
-                                    <Separator></Separator>
-                                    <span>
-                                        <form onSubmit={handleSubmit(createPlaylist)} className='flex flex-col gap-3'>
-                                            <div>
-                                                <Label className='text-white' htmlFor='name'>Name</Label>
-                                                <Input {...register('name', { required: true })} id='name' type="text" placeholder="Enter playlist name" className="w-full mt-2" />
-                                                {errors.name && <p className='text-red-500 mt-2 text-xs'>Name is required</p>}
-                                            </div>
-                                            <div>
-                                                <Label className='text-white' htmlFor='description'>Description</Label>
-                                                <Input {...register('description', { required: true })} id='description' type="text" placeholder="Some description for playlist..." className="w-full mt-2" />
-                                                {errors.description && <p className='text-red-500 mt-2 text-xs'>Description is required</p>}
-                                            </div>
-                                            <Button className='w-full mt-2'>Create New Playlist</Button>
-                                        </form>
-                                    </span>
-                                </DialogContent>
-                            </Dialog>
                         </div>
-                    </div>
-                    {/* views and time count */}
-                    <div className='flex text-center text-muted-foreground text-sm mt-1'>
-                        <p>{video?.views} views</p>
-                        <DotFilledIcon></DotFilledIcon>
-                        <p>Published on {new Date(video?.createdAt).toDateString()}</p>
+
+
                     </div>
                     {/* Owner details */}
                     <div className='flex text-center justify-between text-sm mt-5'>
@@ -282,16 +223,113 @@ function WatchVideoArea(props: any) {
                         </Button>
 
                     </div>
+                    <div className='flex mt-4 gap-2 md:justify-end items-center'>
+                        <div className=' flex border-2 rounded-lg px-1 items-center'>
+                            <Button onClick={() => toggleLikeButton(video?._id)} className='border-0 gap-1' variant={'outline'}>
+                                <LuThumbsUp className='size-4'></LuThumbsUp>
+                                <span>{video?.likesCount}</span>
+                            </Button>
+                            <Button onClick={() => toggleDislikeButton(video?._id)} className='border-0 gap-1' variant={'outline'}>
+                                <LuThumbsDown className='size-4'></LuThumbsDown>
+                                <span>{video?.dislikesCount}</span>
+                            </Button>
+
+                        </div>
+
+                        <div className='md:hidden block'>
+                            <Drawer>
+                                <DrawerTrigger>
+                                <Button onClick={() => saveClickHandler()} className='gap-1' variant={'secondary'}>
+                                    <FaRegCommentDots></FaRegCommentDots>
+                                    <span>Comments!</span>
+                                </Button>
+                                </DrawerTrigger>
+                                <DrawerContent className='h-dvh'>
+                                    <DrawerHeader>
+                                        <DrawerTitle></DrawerTitle>
+                                        <DrawerDescription>This action cannot be undone.</DrawerDescription>
+                                    </DrawerHeader>
+                                    <ScrollArea>
+                                        <Comment data={video}></Comment>
+                                    </ScrollArea>
+                                </DrawerContent>
+                            </Drawer>
+                        </div>
+
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button onClick={() => saveClickHandler()} className='gap-1' variant={'secondary'}>
+                                    <FiFolderPlus></FiFolderPlus>
+                                    <span>Save</span>
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle className='text-center'>Save To Playlist</DialogTitle>
+                                    <DialogDescription>
+
+
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className='w-full grid place-content-center'>
+
+                                    <div className='w-fit items-start flex flex-col gap-3 text-start justify-start'>
+                                        {
+                                            userPlaylists.length > 0 && userPlaylists.map((playlist: any) => (
+                                                <form key={playlist._id} onChange={(e) => checkboxChangeHandler(e, playlist._id)}>
+                                                    <div className="flex text-center justify-center  items-center space-x-2">
+                                                        <Controller
+                                                            control={control}
+                                                            name={playlist._id}
+                                                            defaultValue={playlist.videos?.includes(video._id)}
+                                                            render={({ field }) => (
+                                                                <Checkbox
+                                                                    id={playlist._id}
+                                                                    defaultChecked={field.value}
+                                                                    onChange={e => {
+                                                                        field.onChange((e.target as HTMLInputElement).checked);
+                                                                    }}
+                                                                />
+                                                            )}
+                                                        />
+                                                        <Label className='text-white' htmlFor={playlist._id}>{playlist?.name}</Label>
+                                                    </div>
+                                                </form>
+                                            ))
+                                        }
+                                    </div>
+                                </div>
+                                <Separator></Separator>
+                                <span>
+                                    <form onSubmit={handleSubmit(createPlaylist)} className='flex flex-col gap-3'>
+                                        <div>
+                                            <Label className='text-white' htmlFor='name'>Name</Label>
+                                            <Input {...register('name', { required: true })} id='name' type="text" placeholder="Enter playlist name" className="w-full mt-2" />
+                                            {errors.name && <p className='text-red-500 mt-2 text-xs'>Name is required</p>}
+                                        </div>
+                                        <div>
+                                            <Label className='text-white' htmlFor='description'>Description</Label>
+                                            <Input {...register('description', { required: true })} id='description' type="text" placeholder="Some description for playlist..." className="w-full mt-2" />
+                                            {errors.description && <p className='text-red-500 mt-2 text-xs'>Description is required</p>}
+                                        </div>
+                                        <Button className='w-full mt-2'>Create New Playlist</Button>
+                                    </form>
+                                </span>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                     <Separator className='mt-8'></Separator>
                     {/* Description */}
                     <div className='mt-4'>
                         <p>{video?.description}</p>
                     </div>
+
                 </CardContent>
             </Card>
-            <div className='mt-4'>
+            <div className='mt-4 md:block hidden'>
                 <Comment data={video}></Comment>
             </div>
+
         </>
     )
 }
